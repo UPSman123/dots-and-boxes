@@ -1,2 +1,2 @@
-# dots-and-crosses
-Dots and crosses game in browser through rust/yet framework
+# dots-and-boxes
+Dots and boxes game in browser through rust/yet framework
