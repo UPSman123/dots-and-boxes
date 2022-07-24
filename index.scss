@@ -8,62 +8,67 @@ body {
     color: #ffffff;
 }
 
-.center-content {
+.content {
     display: flex;
     justify-content: center;
+    position: relative;
+    .control-bar {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+    .board {
+        width: 80vmin;
+        border: solid 10px $grey-light;
+        display: grid;
+        background: $grey-light;
+        align-items: center;
+        justify-items: center;
+        grid-template-columns: repeat(var(--nr-columns), 1fr);
+        .inner-cell {
+            width: 100%;
+            aspect-ratio: 1;
+            grid-column: span var(--span);
+        }
+        .inner-cell:hover {
+            background: $grey-med;
+        }
+        .inner-cell[data-state="Blue"] {
+            background: blue;
+        }
+        .inner-cell[data-state="Red"] {
+            background: red;
+        }
+        .dot {
+            width: 100%;
+            aspect-ratio: 1;
+            background: black;
+        }
+        .bar {
+            width: 100%;
+            height: 100%;
+            background: $grey-med;
+        }
+        .bar:hover {
+            background: $grey-dark;
+        }
+        .bar[data-state="Blue"] {
+            background: blue;
+        }
+        .bar[data-state="Red"] {
+            background: red;
+        }
+        .hbar {
+            height: 50%;
+            grid-column: span var(--span);
+        }
+        .vbar {
+            width: 50%;
+        }
+    }
+    .board,
+    .board * {
+        border-radius: 5px;
+    }
 }
 
-.board {
-    width: 80vmin;
-    border: solid 10px $grey-light;
-    display: grid;
-    background: $grey-light;
-    align-items: center;
-    justify-items: center;
-    grid-template-columns: repeat(var(--nr-columns), 1fr);
-    .inner-cell {
-        width: 100%;
-        aspect-ratio: 1;
-        grid-column: span var(--span);
-    }
-    .inner-cell:hover {
-        background: $grey-med;
-    }
-    .inner-cell[data-state="Blue"] {
-        background: blue;
-    }
-    .inner-cell[data-state="Red"] {
-        background: red;
-    }
-    .dot {
-        width: 100%;
-        aspect-ratio: 1;
-        background: black;
-    }
-    .bar {
-        width: 100%;
-        height: 100%;
-        background: $grey-med;
-    }
-    .bar:hover {
-        background: $grey-dark;
-    }
-    .bar[data-state="Blue"] {
-        background: blue;
-    }
-    .bar[data-state="Red"] {
-        background: red;
-    }
-    .hbar {
-        height: 50%;
-        grid-column: span var(--span);
-    }
-    .vbar {
-        width: 50%;
-    }
-}
-
-.board,
-.board * {
-    border-radius: 5px;
-}

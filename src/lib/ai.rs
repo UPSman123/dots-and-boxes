@@ -1,6 +1,6 @@
 use web_sys::console;
 
-use crate::lib::{BarDirection, BarId, BoardState};
+use crate::lib::{BarVecIdIterator, BarId, BoardState, CellState};
 
 pub struct AIOptions {}
 
@@ -37,17 +37,49 @@ impl AI for SimpleAI {
     }
 }
 
-trait MinMaxState {
-    type Move: Copy;
+struct PossibleMovesIter<'a> {
+    iterator: InternalMovesIter<'a>,
+}
 
-    fn possible_moves(&self) -> Vec<Self::Move>;
+type InternalMovesIter<'a> = std::iter::Chain<InternalMovesPartialIter<'a>, InternalMovesPartialIter<'a>>;
+type InternalMovesPartialIter<'a> = std::iter::FilterMap<BarVecIdIterator<'a>, InternalMovesFilter>;
+type InternalMovesFilter = fn((BarId, CellState)) -> Option<BarId>;
+
+fn snd_is_free(tup: (BarId, CellState)) -> Option<BarId> {
+    if tup.1 == CellState::Free {
+        Some(tup.0)
+    } else {
+        None
+    }
+}
+
+impl<'a> PossibleMovesIter<'a> {
+    fn new(board: &'a BoardState) -> Self {
+        let vertical_bars = board.vstates.iter().filter_map(snd_is_free as InternalMovesFilter);
+        let horizontal_bars = board.hstates.iter().filter_map(snd_is_free as InternalMovesFilter);
+        let combined = vertical_bars.chain(horizontal_bars);
+
+        Self {
+            iterator: combined,
+        }
+    }
+}
+
+impl<'a> Iterator for PossibleMovesIter<'a> {
+    type Item = BarId;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iterator.next()
+    }
+}
+
+trait MinMaxState {
+    fn possible_moves(&self) -> PossibleMovesIter<'_>;
 }
 
 impl MinMaxState for BoardState {
-    type Move = BarId;
-
-    fn possible_moves(&self) -> Vec<Self::Move> {
-        vec![]
+    fn possible_moves(&self) -> PossibleMovesIter<'_> {
+        PossibleMovesIter::new(self)
     }
 }
 
@@ -60,7 +92,9 @@ impl<T: MinMaxState> MinMaxEngine<T> {
         Self { cur_state }
     }
 
-    fn best_move(&mut self, state: &T) -> Option<T::Move> {
-        state.possible_moves().first().cloned()
+    fn best_move(&mut self, state: &T) -> Option<BarId> {
+        let moves = state.possible_moves().collect::<Vec<_>>();
+        console::log_1(&format!("moves: {:?}", moves).into());
+        moves.first().cloned()
     }
 }
