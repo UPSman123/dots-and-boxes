@@ -1,6 +1,6 @@
 use web_sys::console;
 
-use crate::lib::{BarVecIdIterator, BarId, BoardState, CellState};
+use crate::lib::{BarId, BarVecIdIterator, BoardState, CellState};
 
 pub struct AIOptions {}
 
@@ -41,27 +41,15 @@ struct PossibleMovesIter<'a> {
     iterator: InternalMovesIter<'a>,
 }
 
-type InternalMovesIter<'a> = std::iter::Chain<InternalMovesPartialIter<'a>, InternalMovesPartialIter<'a>>;
-type InternalMovesPartialIter<'a> = std::iter::FilterMap<BarVecIdIterator<'a>, InternalMovesFilter>;
-type InternalMovesFilter = fn((BarId, CellState)) -> Option<BarId>;
-
-fn snd_is_free(tup: (BarId, CellState)) -> Option<BarId> {
-    if tup.1 == CellState::Free {
-        Some(tup.0)
-    } else {
-        None
-    }
-}
+type InternalMovesIter<'a> = std::iter::Chain<BarVecIdIterator<'a>, BarVecIdIterator<'a>>;
 
 impl<'a> PossibleMovesIter<'a> {
     fn new(board: &'a BoardState) -> Self {
-        let vertical_bars = board.vstates.iter().filter_map(snd_is_free as InternalMovesFilter);
-        let horizontal_bars = board.hstates.iter().filter_map(snd_is_free as InternalMovesFilter);
+        let vertical_bars = board.vstates.iter();
+        let horizontal_bars = board.hstates.iter();
         let combined = vertical_bars.chain(horizontal_bars);
 
-        Self {
-            iterator: combined,
-        }
+        Self { iterator: combined }
     }
 }
 
@@ -69,7 +57,13 @@ impl<'a> Iterator for PossibleMovesIter<'a> {
     type Item = BarId;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iterator.next()
+        self.iterator.find_map(|tup: (BarId, CellState)| {
+            if tup.1 == CellState::Free {
+                Some(tup.0)
+            } else {
+                None
+            }
+        })
     }
 }
 
