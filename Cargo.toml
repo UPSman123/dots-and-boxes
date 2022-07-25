@@ -7,6 +7,15 @@ edition = "2021"
 
 [dependencies]
 yew = "0.19.3"
+rand = "0.8.5"
+
+[dependencies.getrandom]
+version = "0.2.7"
+
+features = [
+    "js",
+    "js-sys",
+]
 
 [dependencies.web-sys]
 version = "0.3"

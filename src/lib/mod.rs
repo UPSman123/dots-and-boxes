@@ -82,8 +82,8 @@ pub struct Game<AI: ai::AI> {
 impl<AI: ai::AI> GameTrait for Game<AI> {
     fn new(width: u32, height: u32) -> Self {
         let board = BoardState::new(width, height);
-        let ai = AI::new(Some(&board));
         let ai_player = Player::Blue;
+        let ai = AI::new(&board, ai_player);
         Self { board , ai, ai_player }
     }
 
@@ -134,7 +134,7 @@ impl<AI: ai::AI> GameTrait for Game<AI> {
 #[derive(Clone)]
 struct BarVec {
     width: u32,
-    height: u32,
+    length: u32,
     direction: BarDirection,
     vec: Vec<CellState>,
 }
@@ -171,7 +171,7 @@ impl BarVec {
         let vec = vec![CellState::Free; (width * height) as usize];
         Self {
             width,
-            height,
+            length: width * height,
             direction,
             vec,
         }
@@ -185,6 +185,14 @@ impl BarVec {
         self.vec[(row * self.width + col) as usize] = state;
     }
 
+    fn index_to_id(&self, index: u32) -> BarId {
+        BarId {
+            direction: self.direction,
+            col: index % self.width,
+            row: index / self.width,
+        }
+    }
+
     fn clear(&mut self) {
         for state in self.vec.iter_mut() {
             *state = CellState::Free;
@@ -195,7 +203,7 @@ impl BarVec {
         BarVecIdIterator {
             direction: self.direction,
             width: self.width,
-            length: self.width * self.height,
+            length: self.length,
             cur_index: 0,
             vec: &self.vec,
         }
