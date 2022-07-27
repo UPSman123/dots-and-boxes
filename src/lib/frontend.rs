@@ -2,7 +2,7 @@ use web_sys::console;
 use yew::prelude::*;
 use yew::Properties;
 
-use crate::lib::{ai::SimpleAI, *};
+use crate::lib::{ai::AIMinMax, *};
 
 pub enum BoardMsg {
     ClickBar {
@@ -220,7 +220,7 @@ impl Component for AppComp {
             <h1>{ "Dots and Boxes" }</h1>
             <div class="content">
                 <ControlBarComp app_update={app_update.clone()}/>
-                <BoardComp<Game<SimpleAI>> width=6 height=5 app_update={app_update.clone()}/>
+                <BoardComp<Game<AIMinMax>> width=4 height=4 app_update={app_update.clone()}/>
             </div>
             </>
         }

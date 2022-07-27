@@ -3,17 +3,18 @@ use std::fmt;
 use yew::html::IntoPropValue;
 
 mod ai;
+mod minmax;
 mod frontend;
 
 pub use frontend::AppComp;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum BarDirection {
     Vertical,
     Horizontal,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BarId {
     pub direction: BarDirection,
     pub col: u32,
@@ -30,6 +31,15 @@ pub enum CellState {
 pub enum Player {
     Red,
     Blue,
+}
+
+impl Player {
+    fn other(&self) -> Self {
+        match self {
+            Player::Red => Player::Blue,
+            Player::Blue => Player::Red,
+        }
+    }
 }
 
 impl From<Player> for CellState {
@@ -245,10 +255,7 @@ impl BoardState {
                 }
             }
             if !point_gained {
-                self.cur_turn = match self.cur_turn {
-                    Player::Blue => Player::Red,
-                    Player::Red => Player::Blue,
-                };
+                self.cur_turn = self.cur_turn.other();
             }
             true
         } else {
